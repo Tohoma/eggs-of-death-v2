@@ -23,13 +23,13 @@ void drawSnake(SDL_FRect snake[], SDL_Renderer * renderer, enum Direction dir, i
     
     if (i == 0) {
       if (dir == RIGHT) {
-        snake[i].x += 10;
+        snake[i].x += 25;
       } else if (dir == LEFT) {
-        snake[i].x -= 10;
+        snake[i].x -= 25;
       } else if (dir == UP) {
-        snake[i].y -= 10;
+        snake[i].y -= 25;
       } else if (dir == DOWN) {
-        snake[i].y += 10;
+        snake[i].y += 25;
       }
     SDL_SetRenderDrawColor(renderer, 252, 244, 3, 1);
     SDL_RenderRect(renderer, &snake[i]);
