@@ -165,12 +165,12 @@ int main(int argc, char * argv[]) {
       }
       goodEgg.x = SDL_rand(windowWidth);
       goodEgg.y = SDL_rand(windowHeight);
-      badEgg.x = SDL_rand(500);
-      badEgg.y = SDL_rand(700);
+      badEgg.x = SDL_rand(windowWidth);
+      badEgg.y = SDL_rand(windowHeight);
 
       while ((badEgg.x > goodEgg.x - 25 && badEgg.x < goodEgg.x + 25) && (badEgg.y > goodEgg.y - 25 && badEgg.y < goodEgg.y + 25)) {
-        badEgg.x = SDL_rand(500);
-        badEgg.y = SDL_rand(700);
+        badEgg.x = SDL_rand(windowWidth);
+        badEgg.y = SDL_rand(windowHeight);
       }
       // x > 0,  x < 610, y > 0, y < 400
 
