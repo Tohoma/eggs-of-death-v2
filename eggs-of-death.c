@@ -103,11 +103,13 @@ int main(int argc, char * argv[]) {
 
   SDL_Init(SDL_INIT_VIDEO); // Initialize SDL3
 
+  int windowWidth = 2000;
+  int windowHeight = 1000;
   // Create an application window with the following settings:
   window = SDL_CreateWindow(
     "An SDL3 window", // window title
-    2000, // width, in pixels
-    1000, // height, in pixels
+    windowWidth, // width, in pixels
+    windowHeight, // height, in pixels
     SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE // flags - see below
   );
   renderer = SDL_CreateRenderer(window, NULL);
@@ -161,8 +163,8 @@ int main(int argc, char * argv[]) {
         snakeBody[snakeSize].h = 25;
         snakeSize++;
       }
-      goodEgg.x = SDL_rand(611);
-      goodEgg.y = SDL_rand(401);
+      goodEgg.x = SDL_rand(windowWidth);
+      goodEgg.y = SDL_rand(windowHeight);
       badEgg.x = SDL_rand(500);
       badEgg.y = SDL_rand(700);
 
