@@ -73,7 +73,7 @@ void wallDeath(SDL_FRect * snake, SDL_Renderer * renderer) {
   }
 }
 int main(int argc, char * argv[]) {
-  int SNAKE_LIMIT = 100;
+  int SNAKE_LIMIT = 101;
   SDL_Window * window; // Declare a pointer
   SDL_Renderer * renderer;
   int snakeSize = 1;
