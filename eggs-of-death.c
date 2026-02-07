@@ -64,12 +64,14 @@ void drawBadEgg(SDL_FRect * badEgg, SDL_Renderer * renderer) {
   SDL_RenderFillRect(renderer, badEgg);
 }
 
-void wallDeath(SDL_FRect * snake, SDL_Renderer * renderer) {
-
+int wallDeath(SDL_FRect * snake, SDL_Renderer * renderer) {
+  
   if (snake -> x >= 2000 || snake -> y >= 1000 || snake -> x <= 0 || snake -> y <= 0) {
     SDL_Log("You have died D:\n");
     snake -> x = 500;
     snake -> y = 500;
+    return 1;
+    
   }
 }
 int main(int argc, char * argv[]) {
@@ -182,6 +184,7 @@ int main(int argc, char * argv[]) {
       badEgg.x = SDL_rand(500);
       badEgg.y = SDL_rand(700);
       // Make a reset snake function
+      snakeSize = (snakeSize - snakeSize) + 1;
       snakeBody[0].x = 500;
       snakeBody[0].y = 500;
       // x > 0,  x < 610, y > 0, y < 400
@@ -194,7 +197,7 @@ int main(int argc, char * argv[]) {
       drawGoodEgg( & goodEgg, renderer);
       drawBadEgg( & badEgg, renderer);
       drawSnake(snakeBody, renderer, dir, snakeSize);
-      wallDeath( & snakeBody[0], renderer);
+      if(wallDeath( & snakeBody[0], renderer) == 1){snakeSize = (snakeSize - snakeSize) + 1;};
       SDL_RenderPresent(renderer);
 
     }
