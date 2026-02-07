@@ -129,29 +129,48 @@ int main(int argc, char * argv[]) {
     SDL_Event event;
 
     while (SDL_PollEvent( & event)) {
+        
       if (event.type == SDL_EVENT_QUIT) {
         done = true;
       } else if (event.type == SDL_EVENT_KEY_DOWN) {
+        enum Direction block = dir;
+        SDL_Log("THe block is: %d",block);
         SDL_Log("A key was pressed: %d", event.key.key);
 
         if (event.key.key == 1073741906) {
           SDL_Log("Up key was pressed");
-          dir = UP;
+           dir = UP;
+          if (block == DOWN){
+            dir = DOWN;
+          }
         }
         if (event.key.key == 1073741905) {
-          SDL_Log("Down key was pressed");
-          dir = DOWN;
+          SDL_Log("Down key was pressed");    
+            dir = DOWN;
+            if (block == UP){
+            dir = UP;
+          }
+          
         }
         if (event.key.key == 1073741904) {
-          SDL_Log("Left key was pressed");
+          SDL_Log("Left key was pressed");       
           dir = LEFT;
+          if (block == RIGHT){
+            dir = RIGHT;
+          }
+          
         }
         if (event.key.key == 1073741903) {
-          SDL_Log("Right key was pressed");
+          SDL_Log("Right key was pressed");  
           dir = RIGHT;
+          if (block == LEFT){
+            dir = LEFT;
+          }
+          
         }
 
       }
+      
     }
     //check for collision
     if ((snakeBody[0].x > goodEgg.x - 25 && snakeBody[0].x < goodEgg.x + 25) && (snakeBody[0].y > goodEgg.y - 25 && snakeBody[0].y < goodEgg.y + 25)) {
