@@ -131,31 +131,59 @@ int main(int argc, char * argv[]) {
     SDL_Event event;
 
     while (SDL_PollEvent( & event)) {
+        
       if (event.type == SDL_EVENT_QUIT) {
         done = true;
       } else if (event.type == SDL_EVENT_KEY_DOWN) {
+        enum Direction block = dir;
+        SDL_Log("THe block is: %d",block);
         SDL_Log("A key was pressed: %d", event.key.key);
 
         if (event.key.key == 1073741906) {
           SDL_Log("Up key was pressed");
-          dir = UP;
+           dir = UP;
+          if (block == DOWN){
+            dir = DOWN;
+          }
         }
         if (event.key.key == 1073741905) {
-          SDL_Log("Down key was pressed");
-          dir = DOWN;
+          SDL_Log("Down key was pressed");    
+            dir = DOWN;
+            if (block == UP){
+            dir = UP;
+          }
+          
         }
         if (event.key.key == 1073741904) {
-          SDL_Log("Left key was pressed");
+          SDL_Log("Left key was pressed");       
           dir = LEFT;
+          if (block == RIGHT){
+            dir = RIGHT;
+          }
+          
         }
         if (event.key.key == 1073741903) {
-          SDL_Log("Right key was pressed");
+          SDL_Log("Right key was pressed");  
           dir = RIGHT;
+          if (block == LEFT){
+            dir = LEFT;
+          }
+          
         }
 
       }
+      
     }
     //check for collision
+    
+    for(int i = 2; i < snakeSize; i++){
+      if((snakeBody[1].x > snakeBody[i].x - 25 && snakeBody[1].x < snakeBody[i].x + 25) &&(snakeBody[1].y > snakeBody[i].y - 25 && snakeBody[1].y < snakeBody[i].y + 25) ){
+        snakeSize = (snakeSize - snakeSize) + 1;
+        snakeBody[0].x = 500;
+        snakeBody[0].y = 500;
+      }
+
+    }
     if ((snakeBody[0].x > goodEgg.x - 25 && snakeBody[0].x < goodEgg.x + 25) && (snakeBody[0].y > goodEgg.y - 25 && snakeBody[0].y < goodEgg.y + 25)) {
       SDL_Log("We hit the egg!");
       if (snakeSize < SNAKE_LIMIT) {
@@ -197,7 +225,9 @@ int main(int argc, char * argv[]) {
       drawGoodEgg( & goodEgg, renderer);
       drawBadEgg( & badEgg, renderer);
       drawSnake(snakeBody, renderer, dir, snakeSize);
-      if(wallDeath( & snakeBody[0], renderer) == 1){snakeSize = (snakeSize - snakeSize) + 1;};
+      if(wallDeath( & snakeBody[0], renderer) == 1){
+        snakeSize = (snakeSize - snakeSize) + 1;
+      };
       SDL_RenderPresent(renderer);
 
     }
