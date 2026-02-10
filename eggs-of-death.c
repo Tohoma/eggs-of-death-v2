@@ -175,6 +175,15 @@ int main(int argc, char * argv[]) {
       
     }
     //check for collision
+      for(int i = 2; i < snakeSize; i++){
+      if((snakeBody[1].x > snakeBody[i].x - 25 && snakeBody[1].x < snakeBody[i].x + 25) &&(snakeBody[1].y > snakeBody[i].y - 25 && snakeBody[1].y < snakeBody[i].y + 25) ){
+        snakeSize = (snakeSize - snakeSize) + 1;
+        snakeBody[0].x = 500;
+        snakeBody[0].y = 500;
+      }
+
+    }
+
     if ((snakeBody[0].x > goodEgg.x - 25 && snakeBody[0].x < goodEgg.x + 25) && (snakeBody[0].y > goodEgg.y - 25 && snakeBody[0].y < goodEgg.y + 25)) {
       SDL_Log("We hit the egg!");
       if (snakeSize < SNAKE_LIMIT) {
@@ -216,7 +225,8 @@ int main(int argc, char * argv[]) {
       drawGoodEgg( & goodEgg, renderer);
       drawBadEgg( & badEgg, renderer);
       drawSnake(snakeBody, renderer, dir, snakeSize);
-      if(wallDeath( & snakeBody[0], renderer) == 1){snakeSize = (snakeSize - snakeSize) + 1;};
+      if(wallDeath( & snakeBody[0], renderer) == 1){
+        snakeSize = (snakeSize - snakeSize) + 1;};
       SDL_RenderPresent(renderer);
 
     }
