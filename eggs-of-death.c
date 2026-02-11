@@ -1,7 +1,7 @@
 // Example program:
 // Using SDL3 to create an application window
 
-#include <SDL3/SDL.h>
+#include <SDL3/SDL.h>  
 
 #include <SDL3/SDL_main.h>
 
@@ -64,16 +64,18 @@ void drawBadEgg(SDL_FRect * badEgg, SDL_Renderer * renderer) {
   SDL_RenderFillRect(renderer, badEgg);
 }
 
-void wallDeath(SDL_FRect * snake, SDL_Renderer * renderer) {
-
+int wallDeath(SDL_FRect * snake, SDL_Renderer * renderer) {
+  
   if (snake -> x >= 2000 || snake -> y >= 1000 || snake -> x <= 0 || snake -> y <= 0) {
     SDL_Log("You have died D:\n");
     snake -> x = 500;
     snake -> y = 500;
+    return 1;
+    
   }
 }
 int main(int argc, char * argv[]) {
-  int SNAKE_LIMIT = 100;
+  int SNAKE_LIMIT = 101;
   SDL_Window * window; // Declare a pointer
   SDL_Renderer * renderer;
   int snakeSize = 1;
@@ -129,31 +131,60 @@ int main(int argc, char * argv[]) {
     SDL_Event event;
 
     while (SDL_PollEvent( & event)) {
+        
       if (event.type == SDL_EVENT_QUIT) {
         done = true;
       } else if (event.type == SDL_EVENT_KEY_DOWN) {
+        enum Direction block = dir;
+        SDL_Log("THe block is: %d",block);
         SDL_Log("A key was pressed: %d", event.key.key);
 
         if (event.key.key == 1073741906) {
           SDL_Log("Up key was pressed");
-          dir = UP;
+           dir = UP;
+          if (block == DOWN){
+            dir = DOWN;
+          }
         }
         if (event.key.key == 1073741905) {
-          SDL_Log("Down key was pressed");
-          dir = DOWN;
+          SDL_Log("Down key was pressed");    
+            dir = DOWN;
+            if (block == UP){
+            dir = UP;
+          }
+          
         }
         if (event.key.key == 1073741904) {
-          SDL_Log("Left key was pressed");
+          SDL_Log("Left key was pressed");       
           dir = LEFT;
+          if (block == RIGHT){
+            dir = RIGHT;
+          }
+          
         }
         if (event.key.key == 1073741903) {
-          SDL_Log("Right key was pressed");
+          SDL_Log("Right key was pressed");  
           dir = RIGHT;
+          if (block == LEFT){
+            dir = LEFT;
+          }
+          
         }
 
       }
+      
     }
     //check for collision
+    
+    for(int i = 2; i < snakeSize; i++){
+      if((snakeBody[1].x > snakeBody[i].x - 25 && snakeBody[1].x < snakeBody[i].x + 25) &&(snakeBody[1].y > snakeBody[i].y - 25 && snakeBody[1].y < snakeBody[i].y + 25) ){
+        snakeSize = (snakeSize - snakeSize) + 1;
+        snakeBody[0].x = 500;
+        snakeBody[0].y = 500;
+      }
+
+    }
+
     if ((snakeBody[0].x > goodEgg.x - 25 && snakeBody[0].x < goodEgg.x + 25) && (snakeBody[0].y > goodEgg.y - 25 && snakeBody[0].y < goodEgg.y + 25)) {
       SDL_Log("We hit the egg!");
       if (snakeSize < SNAKE_LIMIT) {
@@ -182,6 +213,7 @@ int main(int argc, char * argv[]) {
       badEgg.x = SDL_rand(500);
       badEgg.y = SDL_rand(700);
       // Make a reset snake function
+      snakeSize = (snakeSize - snakeSize) + 1;
       snakeBody[0].x = 500;
       snakeBody[0].y = 500;
       // x > 0,  x < 610, y > 0, y < 400
@@ -194,7 +226,8 @@ int main(int argc, char * argv[]) {
       drawGoodEgg( & goodEgg, renderer);
       drawBadEgg( & badEgg, renderer);
       drawSnake(snakeBody, renderer, dir, snakeSize);
-      wallDeath( & snakeBody[0], renderer);
+      if(wallDeath( & snakeBody[0], renderer) == 1){
+        snakeSize = (snakeSize - snakeSize) + 1;};
       SDL_RenderPresent(renderer);
 
     }
