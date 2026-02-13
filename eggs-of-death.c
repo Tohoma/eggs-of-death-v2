@@ -8,7 +8,8 @@
 #include <stdio.h>
 int WINDOW_WIDTH = 700;
 int WINDOW_HEIGHT = 700;
-int SNAKE_SIZE = 1;
+int SNAKE_SIZE = 1;  
+int BAD_EGG_SIZE = 1;
 enum Direction {
   UP,
   DOWN,
@@ -115,6 +116,7 @@ void drawBadEggs(SDL_FRect badEggs[], SDL_Renderer * renderer, int badEggSize) {
   
 }
 
+
 int wallDeath(SDL_FRect * snake, SDL_Renderer * renderer) {
   
   if (snake -> x >= WINDOW_WIDTH || snake -> y >= WINDOW_HEIGHT || snake -> x <= 0 || snake -> y <= 0) {
@@ -125,10 +127,18 @@ int wallDeath(SDL_FRect * snake, SDL_Renderer * renderer) {
     
   }
 }
+
+void Reset(int * BAD_EGG_SIZE){
+  SNAKE_SIZE = (SNAKE_SIZE- SNAKE_SIZE) + 1;  
+  *BAD_EGG_SIZE = (*BAD_EGG_SIZE - *BAD_EGG_SIZE) + 1;
+
+}
+/*---------------------NEED BAD EGGS TO RESET TO 1!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+
 int main(int argc, char * argv[]) {
   int SNAKE_LIMIT = 101;
   int BAD_EGG_LIMIT = 10;
-  int BAD_EGG_SIZE = 1;
+
   SDL_Window * window; // Declare a pointer
   SDL_Renderer * renderer;
   SDL_FRect badEggs[BAD_EGG_LIMIT];
@@ -230,7 +240,7 @@ int main(int argc, char * argv[]) {
     
     for(int i = 2; i < SNAKE_SIZE; i++){
       if((snakeBody[1].x > snakeBody[i].x - 25 && snakeBody[1].x < snakeBody[i].x + 25) &&(snakeBody[1].y > snakeBody[i].y - 25 && snakeBody[1].y < snakeBody[i].y + 25) ){
-        SNAKE_SIZE = (SNAKE_SIZE - SNAKE_SIZE) + 1;
+        Reset(&BAD_EGG_SIZE);
         snakeBody[0].x = 500;
         snakeBody[0].y = 500;
       }
@@ -252,19 +262,20 @@ int main(int argc, char * argv[]) {
       
 
     }
-    if ((snakeBody[0].x > badEgg.x - 25 && snakeBody[0].x < badEgg.x + 25) && (snakeBody[0].y > badEgg.y - 25 && snakeBody[0].y < badEgg.y + 25)) {
+    for(int i = 0; i < BAD_EGG_LIMIT; i++){
+    if ((snakeBody[0].x > badEggs[i].x - 25 && snakeBody[0].x < badEggs[i].x + 25) && (snakeBody[0].y > badEggs[i].y - 25 && snakeBody[0].y < badEggs[i].y + 25)) {
       //SDL_Log("You have died D:\n");
       goodEgg.x = SDL_rand(611);
       goodEgg.y = SDL_rand(401);
-      badEgg.x = SDL_rand(500);
-      badEgg.y = SDL_rand(700);
+      badEggs[i].x = SDL_rand(500);
+      badEggs[i].y = SDL_rand(700);
       // Make a reset snake function
-      SNAKE_SIZE = (SNAKE_SIZE - SNAKE_SIZE) + 1;
+      Reset(&BAD_EGG_SIZE);
       snakeBody[0].x = 500;
       snakeBody[0].y = 500;
       // x > 0,  x < 610, y > 0, y < 400
 
-    }
+    }}
 
     if (frames % 10 == 0) {
       SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
@@ -272,8 +283,11 @@ int main(int argc, char * argv[]) {
       drawGoodEgg( & goodEgg, renderer);
       drawBadEggs( badEggs, renderer, BAD_EGG_LIMIT);
       drawSnake(snakeBody, renderer, dir, SNAKE_SIZE);
-      if(wallDeath( & snakeBody[0], renderer) == 1){
-        SNAKE_SIZE = (SNAKE_SIZE - SNAKE_SIZE) + 1;};
+      if(wallDeath( & snakeBody[0], renderer) == 1){ 
+        Reset(&BAD_EGG_SIZE);
+      SDL_Log(" Reset!!!!!!!!!!\n");
+      SDL_Log(" %d : BAD_EGG_SIZE, %d :  SNAKE_SIZE\n", BAD_EGG_SIZE, SNAKE_SIZE);
+    };
       SDL_RenderPresent(renderer);
 
     }
