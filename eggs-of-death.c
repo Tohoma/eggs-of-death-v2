@@ -9,7 +9,7 @@
 int WINDOW_WIDTH = 700;
 int WINDOW_HEIGHT = 700;
 int SNAKE_SIZE = 1;  
-int BAD_EGG_SIZE = 1;
+int BAD_EGG_SIZE = 0;
 enum Direction {
   UP,
   DOWN,
@@ -65,23 +65,26 @@ int didCollideWithListOfPoints(SDL_FRect point, SDL_FRect pointList[], int listS
 }
 
 int withinCollision(int coord1, int coord2) {
-  if((coord1 > coord2 - 25 && coord1 < coord2 + 25)) {
+  if((coord1 > coord2 - 40 && coord1 < coord2 + 40) || (coord1 > coord2 + 40 && coord1 < coord2 - 40)) {
     return 1;
   }
   return 0;
 }
 
-void spawnGoodEgg(SDL_FRect * goodEgg, SDL_FRect * badEgg, SDL_FRect snake[] ) {
+void spawnGoodEgg(SDL_FRect * goodEgg, SDL_FRect badEggs [], SDL_FRect snake[], int * badEggSize) {
+
   goodEgg -> x = SDL_rand(WINDOW_WIDTH - 25);
   goodEgg -> y = SDL_rand(WINDOW_HEIGHT - 25);
-  while((withinCollision(goodEgg -> x, badEgg -> x) && withinCollision(goodEgg -> y, badEgg -> y))
+  for(int i = 0; i <= *badEggSize; i++){
+  while((withinCollision(goodEgg -> x, badEggs[i].x) && withinCollision(goodEgg -> y, badEggs[i].y)) || (withinCollision( badEggs[i].x ,goodEgg -> x) && withinCollision(badEggs[i].y , goodEgg -> y))
 	|| didCollideWithListOfPoints(*goodEgg, snake, SNAKE_SIZE)) {
     goodEgg -> x = SDL_rand(WINDOW_WIDTH - 25);
     goodEgg -> y = SDL_rand(WINDOW_HEIGHT - 25);
-  }
+  }}
 }
 
 void spawnBadEgg(SDL_FRect badEggs [], SDL_FRect * goodEgg, SDL_FRect snake[], int * badEggSize ) {
+  int counter = 0;
   SDL_FRect badEgg = {
     300,
     500,
@@ -90,15 +93,21 @@ void spawnBadEgg(SDL_FRect badEggs [], SDL_FRect * goodEgg, SDL_FRect snake[], i
   };
   badEgg.x = SDL_rand(WINDOW_WIDTH - 25);
   badEgg.y = SDL_rand(WINDOW_HEIGHT - 25);
-  while((withinCollision(goodEgg -> x, badEgg.x) && withinCollision(goodEgg -> y, badEgg.y))
-	|| didCollideWithListOfPoints(badEgg, snake, SNAKE_SIZE)) {
+  if(counter <= *badEggSize){
+  while((withinCollision(goodEgg -> x, badEggs[counter].x) && withinCollision(goodEgg -> y, badEggs[counter].y)) || (withinCollision(badEggs[counter].x , goodEgg -> x) && withinCollision(badEggs[counter].y , goodEgg -> y))
+	|| didCollideWithListOfPoints(badEggs[counter], snake, SNAKE_SIZE)) {
     badEgg.x = SDL_rand(WINDOW_WIDTH - 25);
     badEgg.y = SDL_rand(WINDOW_HEIGHT - 25);
+
   }
+  counter++;
+  } 
   SDL_Log("Egg size before: %d", *badEggSize);
   badEggs[*badEggSize] = badEgg;
   *badEggSize = *badEggSize + 1;
   SDL_Log("Egg size after: %d", *badEggSize);
+  
+  
 }
 
 void drawGoodEgg(SDL_FRect * goodEgg, SDL_Renderer * renderer) {
@@ -108,7 +117,7 @@ void drawGoodEgg(SDL_FRect * goodEgg, SDL_Renderer * renderer) {
 }
 
 void drawBadEggs(SDL_FRect badEggs[], SDL_Renderer * renderer, int badEggSize) {
-  for(int i = 0; i < badEggSize; i++) {
+  for(int i = 0; i <= badEggSize; i++) {
     SDL_SetRenderDrawColor(renderer, 235, 64, 52, 25);
     SDL_RenderRect(renderer, &badEggs[i]);
     SDL_RenderFillRect(renderer, &badEggs[i]);
@@ -128,9 +137,14 @@ int wallDeath(SDL_FRect * snake, SDL_Renderer * renderer) {
   }
 }
 
-void Reset(int * BAD_EGG_SIZE){
-  SNAKE_SIZE = (SNAKE_SIZE- SNAKE_SIZE) + 1;  
-  *BAD_EGG_SIZE = (*BAD_EGG_SIZE - *BAD_EGG_SIZE) + 1;
+void Reset(int *BAD_EGG_SIZE, int *SNAKE_SIZE, SDL_FRect badeggs[]){
+  *SNAKE_SIZE = (*SNAKE_SIZE- *SNAKE_SIZE) + 1;  
+  *BAD_EGG_SIZE = (*BAD_EGG_SIZE - *BAD_EGG_SIZE); 
+  SDL_FRect reseter[1] = {0,0,0,0}; 
+  for(int i = 0; i < *BAD_EGG_SIZE; i++){
+    badeggs[i] = reseter[0];
+  }
+
 
 }
 /*---------------------NEED BAD EGGS TO RESET TO 1!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
@@ -240,14 +254,14 @@ int main(int argc, char * argv[]) {
     
     for(int i = 2; i < SNAKE_SIZE; i++){
       if((snakeBody[1].x > snakeBody[i].x - 25 && snakeBody[1].x < snakeBody[i].x + 25) &&(snakeBody[1].y > snakeBody[i].y - 25 && snakeBody[1].y < snakeBody[i].y + 25) ){
-        Reset(&BAD_EGG_SIZE);
+        Reset(&BAD_EGG_SIZE , &SNAKE_SIZE, badEggs);
         snakeBody[0].x = 500;
         snakeBody[0].y = 500;
       }
 
     }
 
-    if ((snakeBody[0].x > goodEgg.x - 25 && snakeBody[0].x < goodEgg.x + 25) && (snakeBody[0].y > goodEgg.y - 25 && snakeBody[0].y < goodEgg.y + 25)) {
+    if ((snakeBody[0].x > goodEgg.x - 30 && snakeBody[0].x < goodEgg.x + 30) && (snakeBody[0].y > goodEgg.y - 30 && snakeBody[0].y < goodEgg.y + 30)) {
       SDL_Log("We hit the egg!");
       if (SNAKE_SIZE < SNAKE_LIMIT) {
         snakeBody[SNAKE_SIZE].x = snakeBody[0].x;
@@ -256,13 +270,13 @@ int main(int argc, char * argv[]) {
         snakeBody[SNAKE_SIZE].h = 25;
         SNAKE_SIZE++;
       }
-      spawnGoodEgg(&goodEgg, &badEgg, snakeBody);
+      spawnGoodEgg(&goodEgg, badEggs, snakeBody, &BAD_EGG_SIZE);
       spawnBadEgg(badEggs, &goodEgg, snakeBody, &BAD_EGG_SIZE);
       SDL_Log("Egg size from line 251 %d", BAD_EGG_SIZE);
       
 
     }
-    for(int i = 0; i < BAD_EGG_LIMIT; i++){
+    for(int i = 0; i < BAD_EGG_SIZE; i++){
     if ((snakeBody[0].x > badEggs[i].x - 25 && snakeBody[0].x < badEggs[i].x + 25) && (snakeBody[0].y > badEggs[i].y - 25 && snakeBody[0].y < badEggs[i].y + 25)) {
       //SDL_Log("You have died D:\n");
       goodEgg.x = SDL_rand(611);
@@ -270,7 +284,7 @@ int main(int argc, char * argv[]) {
       badEggs[i].x = SDL_rand(500);
       badEggs[i].y = SDL_rand(700);
       // Make a reset snake function
-      Reset(&BAD_EGG_SIZE);
+      Reset(&BAD_EGG_SIZE , &SNAKE_SIZE, badEggs);
       snakeBody[0].x = 500;
       snakeBody[0].y = 500;
       // x > 0,  x < 610, y > 0, y < 400
@@ -281,10 +295,10 @@ int main(int argc, char * argv[]) {
       SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
       SDL_RenderClear(renderer);
       drawGoodEgg( & goodEgg, renderer);
-      drawBadEggs( badEggs, renderer, BAD_EGG_LIMIT);
+      drawBadEggs( badEggs, renderer, BAD_EGG_SIZE);
       drawSnake(snakeBody, renderer, dir, SNAKE_SIZE);
       if(wallDeath( & snakeBody[0], renderer) == 1){ 
-        Reset(&BAD_EGG_SIZE);
+        Reset(&BAD_EGG_SIZE , &SNAKE_SIZE, badEggs);
       SDL_Log(" Reset!!!!!!!!!!\n");
       SDL_Log(" %d : BAD_EGG_SIZE, %d :  SNAKE_SIZE\n", BAD_EGG_SIZE, SNAKE_SIZE);
     };
