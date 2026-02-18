@@ -17,6 +17,12 @@ enum Direction {
   RIGHT
 };
 
+enum GameState {
+  RUNNING,
+  PAUSED
+};
+
+
 void drawSnake(SDL_FRect snake[], SDL_Renderer * renderer, enum Direction dir, int snakeSize) {
   float prev_x = snake[0].x;
   float prev_y = snake[0].y;
@@ -142,7 +148,7 @@ int wallDeath(SDL_FRect * snake, SDL_Renderer * renderer) {
 
 void Reset(int *BAD_EGG_SIZE, int *SNAKE_SIZE, SDL_FRect badeggs[], SDL_FRect snakeBody[]){
    
-  SDL_FRect reseter[1] = {0,0,0,0}; 
+  SDL_FRect reseter[1] = {-10,0,0,0};
   for(int i = 0; i < *BAD_EGG_SIZE; i++){
     badeggs[i] = reseter[0]; 
   }
@@ -150,7 +156,7 @@ void Reset(int *BAD_EGG_SIZE, int *SNAKE_SIZE, SDL_FRect badeggs[], SDL_FRect sn
     snakeBody[i] = reseter[0];
   }
   *SNAKE_SIZE = (*SNAKE_SIZE- *SNAKE_SIZE) + 1;  
-  *BAD_EGG_SIZE = (*BAD_EGG_SIZE - *BAD_EGG_SIZE);
+  *BAD_EGG_SIZE = 0; //(*BAD_EGG_SIZE - *BAD_EGG_SIZE);
 
 
 }
@@ -159,7 +165,7 @@ void Reset(int *BAD_EGG_SIZE, int *SNAKE_SIZE, SDL_FRect badeggs[], SDL_FRect sn
 int main(int argc, char * argv[]) {
   int SNAKE_LIMIT = 101;
   int BAD_EGG_LIMIT = 10;
-
+  enum GameState state = RUNNING;
   SDL_Window * window; // Declare a pointer
   SDL_Renderer * renderer;
   SDL_FRect badEggs[BAD_EGG_LIMIT];
@@ -212,16 +218,20 @@ int main(int argc, char * argv[]) {
   int frames = 0;
   while (!done) {
     SDL_Event event;
-
+    if (state == RUNNING) {
     while (SDL_PollEvent( & event)) {
         
       if (event.type == SDL_EVENT_QUIT) {
         done = true;
-      } else if (event.type == SDL_EVENT_KEY_DOWN) {
+      }
+      if (event.type == SDL_EVENT_KEY_DOWN) {
         enum Direction block = dir;
         //SDL_Log("THe block is: %d",block);
-        //SDL_Log("A key was pressed: %d", event.key.key);
-
+        SDL_Log("A key was pressed: %d", event.key.key);
+        //112 is p
+	if(event.key.key == 112) {
+	  state = PAUSED;
+	}
         if (event.key.key == 1073741906) {
           //SDL_Log("Up key was pressed");
            dir = UP;
@@ -325,8 +335,22 @@ int main(int argc, char * argv[]) {
     // Figure a way to calculate the exact number of milliseconds to delay to achive 60 fps. 
     SDL_Delay(16);
     // Do game logic, present a frame, etc.
+  }else if (state == PAUSED) {
+    // Check for input for p
+    while (SDL_PollEvent( & event)) {
+      if (event.type == SDL_EVENT_QUIT) {
+        done = true;
+      }
+      if (event.type == SDL_EVENT_KEY_DOWN) {
+        // 112 is p
+	if(event.key.key == 112) {
+	  state = RUNNING;
+	}
+    }
+    }
+    SDL_Delay(16);
   }
-
+  } 
   // Close and destroy the window
   SDL_DestroyWindow(window);
   SDL_DestroyRenderer(renderer);
